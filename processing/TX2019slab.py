@@ -1,7 +1,9 @@
 """python3 script to convert the TX2019slab tomography model to a consistently formatted netCDF4 file"""
 
+import numpy as np
 import xarray as xr
 from pathlib import Path
+from constants import *
 
 TX2019slab = xr.load_dataset(Path("processing/TX2019slab.nc"))
 
@@ -42,11 +44,15 @@ TX2019slab["dVp_percent"].attrs = {
 }
 
 # add radius and make primary dim
-TX2019slab = TX2019slab.assign_coords({"r": ("depth", (6731 - TX2019slab["depth"].data) * 1e3)})
+TX2019slab = TX2019slab.assign_coords({"r": ("depth", earth_radius - TX2019slab["depth"].data * 1e3)})
 TX2019slab["r"] = TX2019slab["r"].assign_attrs({
         "long_name": "radius",
         "units": "m",
         "positive": "up"
 })
 TX2019slab = TX2019slab.swap_dims({"depth": "r"})
+TX2019slab = TX2019slab.reindex(r=TX2019slab["r"][::-1]) # reverse radii so that they run from cmb to surface
+TX2019slab = TX2019slab.isel(lon=slice(0, -1)) # remove lon=180 since we have a value at lon=-180
+ri = np.concatenate(([cmb_radius], TX2019slab["r"].data, [earth_radius])) # create radii to extrapolate to surface and cmb
+TX2019slab =TX2019slab.interp(r=ri, kwargs={"fill_value": "extrapolate"}) # extrapolate
 TX2019slab.to_netcdf(Path("TX2019slab.nc"))
