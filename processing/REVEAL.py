@@ -1,6 +1,5 @@
 """python3 script to convert the REVEAL tomography model to a consistently formatted netCDF4 file"""
 
-import numpy as np
 import xarray as xr
 from pathlib import Path
 from constants import *
