@@ -27,13 +27,13 @@ The _`processing`_ folder contains the Python scripts that convert the source fi
 
 The _`plotting`_ folder contains an example script[^3] for plotting a radial cross-section, given two arbitrary geographic coordinate pairs. This depends on the `spherical.py` file, containing functions which are useful for computing things in spherical coordinate systems.
 
-Obviously you can use any language/libraries you wish, but the example plotting script in this repository is for Python 3 and requires the `numpy`, `scipy`, `xarray`, `cmcrameri`, `cartopy`, and, of course, `matplotlib` libraries, as well as a $\LaTeX$ installation with the `amsmath` and `siunitx` packages. (If you don't already use $\LaTeX$ for typesetting your plots, you should!)
+Obviously you can use any language/libraries you wish, but the example plotting script in this repository is for Python 3 and requires the `numpy`, `scipy`, `xarray`, `cmcrameri`, `cartopy`, and, of course, `matplotlib` libraries, as well as a working $\LaTeX$ installation. (If you don't already use $\LaTeX$ for typesetting your plots, you should!)
 
 A big motivation for me to develop this workflow was my stubbornness to avoid using GMT or PyGMT. Since I was already very familiar with Matplotlib and using it for ordinary scientific plots, once I started working with geoscientific data I would either have to transition _all_ my plotting to GMT, or learn how to do geoscientific plots with Matplotlib if I wanted my plots to look consistent (which I did). Unfortunately, a lot of things that are easy to do with GMT require a bit more effort to achieve in practice with Matplotlib, most notably, cross-sections. Matplotlib was just never designed with plotting heatmaps on circular sectors in mind, and it's not something many people are doing (they're mostly doing it with GMT).
 
 ## Data sources
 
-Every tomography model has its respective journal article(s) and download link saved as an attribute in its netCDF4 file, which in Python may be accessed using `xarray` (`SciPy` does not support netCDF4).
+Every tomography model has its respective journal article(s) and download link saved as an attribute in its netCDF4 file, which in Python may be accessed using xarray (SciPy does not support netCDF4).
 
 [^1]: I.e., in the cases where the the shallowest depth is a few tens of kilometers from the surface or the deepest depth is a couple of hundred kilometers from the core-mantle boundary.
 [^2]: In a future version, which will be Soon&trade;, this will change from `'convention'` to `'antimeridian'`, which will track the location of the antimeridian such that a global basemap can be plot centred on any meridian.
