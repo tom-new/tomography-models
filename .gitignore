@@ -1,3 +1,4 @@
 # ignore all except python scripts in the processing folder
 processing/*
 !processing/*.py
+plotting/__pycache__
