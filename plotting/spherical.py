@@ -1,7 +1,9 @@
 import numpy
+import xarray
 from numpy.typing import ArrayLike, NDArray
+from xarray import Dataset
 
-def cart2sph(cartesian_coord_array: NDArray, degrees: bool=False) -> NDArray:
+def cart2sph(cartesian_coord_array: ArrayLike, degrees: bool=False) -> NDArray:
     ''' Take shape (N,3) or (3,) cartesian coord_array and return an array of the same shape in spherical polar form (r,theta,phi). Based on StackOverflow response: http://stackoverflow.com/a/4116899.
 
     Use radians for angles by default, degrees if ``degrees == True``.'''
@@ -24,7 +26,7 @@ def cart2sph(cartesian_coord_array: NDArray, degrees: bool=False) -> NDArray:
     return spherical_coord_array
 
 
-def sph2cart(spherical_coord_array: NDArray, degrees=False) -> NDArray:
+def sph2cart(spherical_coord_array: ArrayLike, degrees=False) -> NDArray:
     '''Take shape (N,3) or (3,) spherical_coord_array (radius, azimuth, pole) and return an array of the same shape in cartesian coordinate form (x, y, z). Based on the equations provided at: http://en.wikipedia.org/wiki/List_of_common_coordinate_transformations#From_spherical_coordinates.
 
     Use radians for angles by default, degrees if ``degrees == True``.'''
@@ -47,7 +49,7 @@ def sph2cart(spherical_coord_array: NDArray, degrees=False) -> NDArray:
     return cartesian_coord_array
 
 
-def geo2sph(geographical_coord_array: NDArray, degrees=False) -> NDArray:
+def geo2sph(geographical_coord_array: ArrayLike, degrees=False) -> NDArray:
     '''Take shape (N,2), (N,3), (2,), or (3,) geographical_coord_array ([radius], lon, lat) and return an array of the same shape in spherical coordinate form ([radius], azimuth, pole).'''
 
     # cast to numpy.ndarray with type ``numpy.float64`` since this function is likely to be passed integer degrees of lon or lat
@@ -65,7 +67,7 @@ def geo2sph(geographical_coord_array: NDArray, degrees=False) -> NDArray:
     return spherical_coord_array
 
 
-def sph2geo(spherical_coord_array: NDArray, degrees=False) -> NDArray:
+def sph2geo(spherical_coord_array: ArrayLike, degrees=False) -> NDArray:
     '''Take shape (N,2), (N,3), (2,), or (3,) spherical_coord_array ([radius], azimuth, pole) and return an array of the same shape in geographical coordinate form ([radius], lon, lat).'''
 
     # cast to numpy.ndarray with type ``numpy.float64`` just in case some loon decides to pass an integer amount of radians
@@ -83,7 +85,7 @@ def sph2geo(spherical_coord_array: NDArray, degrees=False) -> NDArray:
     return geographical_coord_array
 
 
-def cart2polar(cartesian_coord_array: NDArray, degrees=False) -> NDArray:
+def cart2polar(cartesian_coord_array: ArrayLike, degrees=False) -> NDArray:
     '''Take shape (N,2) cartesian_coord_array and return an array of the same shape in polar coordinates (radius, azimuth).
 
     Use radians for angles by default, degrees if ``degrees == True``.'''
@@ -105,7 +107,7 @@ def cart2polar(cartesian_coord_array: NDArray, degrees=False) -> NDArray:
     return polar_coord_array
 
 
-def great_circle_distance(array_1: NDArray, array_2: NDArray, coordinate_system: str='spherical', sphere_radius: bool | float=False) -> float:
+def great_circle_distance(array_1: ArrayLike, array_2: ArrayLike, coordinate_system: str='spherical', sphere_radius: bool | float=False) -> float:
     '''Calculate the haversine-based distance between two arrays of points on the surface of a sphere (array shape must be (N,3) or (3,)). Should be more accurate than the arc cosine strategy. See, for example: http://en.wikipedia.org/wiki/Haversine_formula.
     
     This function assumes that all your coordinate pairs have the same radius. If they don't, why!? It doesn't make sense to calculate the great circle distance between coordinates that don't lie on the same spherical shell. If you're a complete psychopath though, you can override the radius (or radii) with custom values---either a single value to use for everything or an array-like of values of length N.'''
@@ -125,3 +127,14 @@ def great_circle_distance(array_1: NDArray, array_2: NDArray, coordinate_system:
     spherical_distance = 2.0 * sphere_radius * numpy.arcsin(numpy.sqrt( ((1 - numpy.cos(theta_2-theta_1))/2.) + numpy.sin(theta_1) * numpy.sin(theta_2) * ( (1 - numpy.cos(phi_2-phi_1))/2.)  ))
 
     return spherical_distance
+
+def convert_lon(dataset: Dataset) -> Dataset:
+    if dataset["lon"].convention == "bipolar":
+        dataset = dataset.assign_coords(lon=xarray.where(dataset["lon"] < 0, dataset["lon"] + 360, dataset["lon"]))
+        dataset = dataset.sortby("lon")
+        dataset["lon"] = dataset["lon"].assign_attrs(convention="positive")
+    else:
+        dataset = dataset.assign_coords(lon=xarray.where(dataset["lon"] > 180, dataset["lon"] - 360, dataset["lon"]))
+        dataset = dataset.sortby("lon")
+        dataset["lon"] = dataset["lon"].assign_attrs(convention="bipolar")
+    return dataset
