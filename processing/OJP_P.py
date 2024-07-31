@@ -3,13 +3,14 @@
 import numpy as np
 import xarray as xr
 from pathlib import Path
+from constants import *
 
 # data parameters from README file
 nlon = 288
 nlat = 144
 depths = np.array([40. , 64.5, 94. , 129. , 169. , 214. , 264. , 319. ,  379. , 444. , 514.5, 590. , 670.5, 756. , 846.5, 942. , 1043. , 1149. , 1260. , 1376. , 1497. , 1623.5, 1754.5, 1890.5, 2032. , 2178.5, 2330. , 2486.5, 2727.5]) # depth values are the midpoints of the depth bands in the readme in km
 nlayers = len(depths)
-radii = 6371e3 - depths * 1e3
+radii = earth_radius - depths * 1e3
 
 # create arrays of lons and lats
 offset = 180 / nlat # from the README, data are for middle of blocks, so need to calculate the offset
@@ -76,5 +77,8 @@ ojp_p["dVp_percent"].attrs = {
     "long_name": "P-wave velocity perturbation",
     "units": "percent"
 }
-ojp_p = ojp_p.reindex(lat=ojp_p.lat[::-1]) # reverse latitudes so that they run from -90 to 90
-ojp_p.to_netcdf(Path("OJP_P.nc"))
+ojp_p = ojp_p.reindex(lat=ojp_p["lat"][::-1]) # reverse latitudes so that they run from -90 to 90
+ojp_p = ojp_p.reindex(r=ojp_p["r"][::-1]) # reverse radii so that they run from cmb to surface
+ri = np.concatenate(([cmb_radius], ojp_p["r"].data, [earth_radius])) # create radii to extrapolate to surface and cmb
+ojp_p = ojp_p.interp(r=ri, kwargs={"fill_value": "extrapolate"}) # extrapolate
+ojp_p.to_netcdf(Path("ojp_p.nc")) # save to netcdf4
