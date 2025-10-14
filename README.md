@@ -16,7 +16,7 @@ However, there are also some key differences:
 * Where it is reasonable[^1], tomography models have been radially extrapolated to the surface and core-mantle boundary.
 * Longitude ranges from $-180$ _up to but not including_ $+180$ degrees, primarily because this resolves many issues when converting from bipolar to positive (from $0$ _up to but not including_ $360$ degrees).
 * The longitude dimension contains a `'convention'` attribute, which tracks whether the longitude is in bipolar or positive format[^2].
-* Data variables have more meaningful names (e.g. if P-wave velocity perturbation is in %, it's called `dVp_percent`)
+* Data variables have more meaningful names (e.g. if P-wave velocity perturbation is in %, it's called `dlnVp_percent`)
 * Significantly less information is stored in the top level attributes of the netCDF4 files&mdash;some have been dropped entirely (e.g. full author lists) while others have been moved to the appropriate secondary level (e.g. units for dimensions are now attributes of those dimensions).
 
 ## Processing

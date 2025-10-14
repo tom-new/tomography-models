@@ -34,6 +34,10 @@ ds = xr.Dataset(
 # make lon bipolar
 ds = ds.assign_coords({"lon": (((ds.lon + 180) % 360) - 180)}).sortby("lon")
 
+# extend depth range to surface and cmb
+depths_ext = np.concatenate(([0], ds["depth"].data, [2891]))
+ds = ds.interp(depth=depths_ext, kwargs={"fill_value": "extrapolate"})
+
 # add attributes
 ds.attrs = {
     "id": "MITP08",
