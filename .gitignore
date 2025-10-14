@@ -2,3 +2,6 @@
 processing/*
 !processing/*.py
 plotting/__pycache__
+
+# ignore vscode folder
+.vscode/
