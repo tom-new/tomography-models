@@ -31,6 +31,9 @@ ds = xr.Dataset(
     data_vars={"dlnVp_percent": da},
 )
 
+# reorder dims to depth, lat, lon
+ds = ds.transpose("depth", "lat", "lon")
+
 # make lon bipolar
 ds = ds.assign_coords({"lon": (((ds.lon + 180) % 360) - 180)}).sortby("lon")
 
