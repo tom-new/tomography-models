@@ -98,21 +98,17 @@ GLAD_M35["dlnVs_percent"].attrs = {
     "units": "percent",
 }
 
-import matplotlib.pyplot as plt
-
-STW105_i["Vp"].plot(y="depth", yincrease=False)
-GLAD_M35["Vph"].mean(dim=("lat", "lon")).plot(y="depth", yincrease=False)
-plt.title("P-wave velocity")
-plt.xlabel("Velocity (m/s)")
-plt.ylabel("Depth (km)")
-plt.gca().set_ylim(2871, 0)
-plt.show()
-plt.close("all")
-
 # personally I only care for the perturbations, so drop all the other variables
 for var in GLAD_M35.data_vars:
     if var not in ["dlnVp_percent", "dlnVs_percent"]:
         GLAD_M35 = GLAD_M35.drop_vars(var)
 
-print(GLAD_M35)
+# extend radius to surface and extrapolate
+ri = np.concatenate(
+    ([earth_radius], GLAD_M35["r"].data)
+)  # create radii to extrapolate to surface and cmb
+GLAD_M35 = GLAD_M35.interp(
+    r=ri, method="cubic", kwargs={"fill_value": "extrapolate"}
+)  # extrapolate
+
 GLAD_M35.to_netcdf(Path(__file__).parent.parent / "GLAD_M35.nc")
