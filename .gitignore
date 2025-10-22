@@ -5,3 +5,6 @@ plotting/__pycache__
 
 # ignore vscode folder
 .vscode/
+
+# ignore ds store
+.DS_Store
