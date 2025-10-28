@@ -101,7 +101,7 @@ GLAD_M35["dlnVs_percent"].attrs = {
     "units": "percent",
 }
 
-# personally I only care for the perturbations, so drop all the other variables
+# personally I only care for the isotropic values and perturbations, so drop all the other variables
 for var in GLAD_M35.data_vars:
     if var not in ["Vp", "Vs", "dlnVp_percent", "dlnVs_percent"]:
         GLAD_M35 = GLAD_M35.drop_vars(var)
