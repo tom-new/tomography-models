@@ -2,7 +2,6 @@
 
 import numpy as np
 import xarray as xr
-import pandas as pd
 from pathlib import Path
 from constants import *
 
@@ -31,7 +30,7 @@ GLAD_M35.attrs = {
     "id": "GLAD-M35",
     "reference": "Cui et al. (2024)",
     "doi": "https://doi.org/10.1093/gji/ggae270",
-    "source": "Personal communication",
+    "source": "https://doi.org/10.17611/dp/emc.2024.gladm35.1",
 }
 GLAD_M35["depth"].attrs = {"long_name": "depth", "units": "km", "positive": "down"}
 GLAD_M35["lat"].attrs = {"long_name": "latitude", "units": "degrees"}
@@ -58,12 +57,16 @@ GLAD_M35["Vsv"].attrs = {
 }
 
 # add isotropic Vp and Vs
-GLAD_M35["Vp"] = 2 / (1 / GLAD_M35["Vpv"] + 1 / GLAD_M35["Vph"])
+# Vp is just Vpv since Vph is a derived property of Vsh
+GLAD_M35["Vp"] = GLAD_M35["Vpv"]
 GLAD_M35["Vp"].attrs = {
     "long_name": "Isotropic P-wave velocity",
     "units": "m/s",
 }
-GLAD_M35["Vs"] = 2 / (1 / GLAD_M35["Vsv"] + 1 / GLAD_M35["Vsh"])
+# Vs is the Voigt average of Vsv and Vsh
+GLAD_M35["Vs"] = np.sqrt(
+    2 / 3 * np.square(GLAD_M35["Vsv"]) + 1 / 3 * np.square(GLAD_M35["Vsh"])
+)
 GLAD_M35["Vs"].attrs = {
     "long_name": "Isotropic S-wave velocity",
     "units": "m/s",
