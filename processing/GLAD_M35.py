@@ -103,7 +103,7 @@ GLAD_M35["dlnVs_percent"].attrs = {
 
 # personally I only care for the perturbations, so drop all the other variables
 for var in GLAD_M35.data_vars:
-    if var not in ["dlnVp_percent", "dlnVs_percent"]:
+    if var not in ["Vp", "Vs", "dlnVp_percent", "dlnVs_percent"]:
         GLAD_M35 = GLAD_M35.drop_vars(var)
 
 # extend radius to surface and extrapolate
